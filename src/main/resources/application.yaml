@@ -1,0 +1,12 @@
+server:
+  port: 8084
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/personservice
+    username: postgres
+    password: 4
+  flyway:
+    url: jdbc:postgresql://localhost:5432/personservice
+    locations: filesystem:src/main/resources/db/migration
+    user: ${spring.r2dbc.username}
+    password: ${spring.r2dbc.password}
