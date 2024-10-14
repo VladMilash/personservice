@@ -20,6 +20,7 @@ configurations {
 }
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 }
 
@@ -36,6 +37,11 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:postgresql'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	implementation 'com.mvo:common:1.0.0'
+
+	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.5.Final'
+	implementation group: 'org.mapstruct', name: 'mapstruct-processor', version: '1.5.5.Final'
 }
 
 tasks.named('test') {
