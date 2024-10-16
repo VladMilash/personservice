@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -50,4 +51,5 @@ public class User {
 
     @Column("address_id")
     private UUID addressId;
+
 }
