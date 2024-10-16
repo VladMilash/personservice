@@ -36,7 +36,7 @@ CREATE TABLE users (
                               address_id UUID REFERENCES addresses(id)
 );
 
-CREATE TABLE individuals (
+CREATE TABLE individualsService (
                                     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                                     user_id UUID UNIQUE REFERENCES users(id),
                                     created TIMESTAMP NOT NULL,
