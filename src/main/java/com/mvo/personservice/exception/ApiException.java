@@ -1,7 +1,13 @@
 package com.mvo.personservice.exception;
 
+import lombok.Getter;
+
 public class ApiException extends RuntimeException {
-    public ApiException(String message) {
+    @Getter
+    protected String errorCode;
+
+    public ApiException(String message, String errorCode) {
         super(message);
+        this.errorCode = errorCode;
     }
 }

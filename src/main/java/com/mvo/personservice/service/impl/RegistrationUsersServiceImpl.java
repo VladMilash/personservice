@@ -31,10 +31,10 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
     @Override
     public Mono<User> registrationUser(RegistrationRequestDTO request) {
         return countryService.findByName(request.country())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("Country is not found")))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Country is not found", "COUNTRY_IS_NOT_FOUND")))
                 .flatMap(country ->
                         individualService.findByEmail(request.email())
-                                .flatMap(individual -> Mono.<User>error(new EntityAlreadyExistException("Individual with this email already exists")))
+                                .flatMap(individual -> Mono.<User>error(new EntityAlreadyExistException("Individual with this email already exists", "INDIVIDUAL_ALREADY_EXISTS")))
                                 .switchIfEmpty(
                                         addressService.createAddress(createdAddressEntity(request, country))
                                                 .flatMap(address -> userService.createUser(createUserEntity(request, address)))
@@ -42,7 +42,7 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
                                                 .flatMap(user -> individualService.createIndividual(createIndividualEntity(request, user))
                                                         .doOnError(error -> log.error("Failed to saving individual", error))
                                                         .thenReturn(user)
-                                                        .switchIfEmpty(Mono.error(new ApiException("Individual was not saved"))))
+                                                        .switchIfEmpty(Mono.error(new ApiException("Individual was not saved", "FAILED_SAVING_INDIVIDUAL"))))
                                 )
                 );
     }
