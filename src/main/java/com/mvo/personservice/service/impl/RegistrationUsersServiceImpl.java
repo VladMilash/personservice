@@ -4,6 +4,9 @@ import com.mvo.personservice.entity.Address;
 import com.mvo.personservice.entity.Country;
 import com.mvo.personservice.entity.Individual;
 import com.mvo.personservice.entity.User;
+import com.mvo.personservice.exception.ApiException;
+import com.mvo.personservice.exception.EntityAlreadyExistException;
+import com.mvo.personservice.exception.EntityNotFoundException;
 import com.mvo.personservice.service.*;
 import dto.RegistrationRequestDTO;
 import dto.status.Status;
@@ -28,18 +31,18 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
     @Override
     public Mono<User> registrationUser(RegistrationRequestDTO request) {
         return countryService.findByName(request.country())
-                .switchIfEmpty(Mono.error(new RuntimeException("Country is not found")))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Country is not found")))
                 .flatMap(country ->
                         individualService.findByEmail(request.email())
-                                .flatMap(individual -> Mono.<User>error(new RuntimeException("Individual with this email already exists")))
+                                .flatMap(individual -> Mono.<User>error(new EntityAlreadyExistException("Individual with this email already exists")))
                                 .switchIfEmpty(
                                         addressService.createAddress(createdAddressEntity(request, country))
                                                 .flatMap(address -> userService.createUser(createUserEntity(request, address)))
                                                 .doOnError(error -> log.error("Failed to saving user"))
                                                 .flatMap(user -> individualService.createIndividual(createIndividualEntity(request, user))
-                                                        .doOnError(error -> log.error("Failed to saving individual"))
+                                                        .doOnError(error -> log.error("Failed to saving individual", error))
                                                         .thenReturn(user)
-                                                        .switchIfEmpty(Mono.error(new RuntimeException("Individual was not saved"))))
+                                                        .switchIfEmpty(Mono.error(new ApiException("Individual was not saved"))))
                                 )
                 );
     }
