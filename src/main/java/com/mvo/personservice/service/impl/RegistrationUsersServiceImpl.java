@@ -30,6 +30,7 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
     @Transactional
     @Override
     public Mono<User> registrationUser(RegistrationRequestDTO request) {
+        log.info("Request:{}", request.toString());
         return countryService.findByName(request.country())
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Country is not found", "COUNTRY_IS_NOT_FOUND")))
                 .flatMap(country ->

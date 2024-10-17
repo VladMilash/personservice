@@ -24,7 +24,7 @@ public class IndividualServiceImpl implements IndividualService {
     @Override
     public Mono<Individual> findByEmail(String email) {
         return individualRepository.findByEmail(email)
-                .doOnSuccess(individual -> log.info("Individual with email {} was found successfully", individual.getEmail()))
+                .doOnSuccess(individual -> log.info("Operation for founding has finished successfully"))
                 .doOnError(error -> log.error("Failed to founding individual", error));
     }
 }
