@@ -5,4 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface CountryService {
     Mono<Country> findByName(String name);
+
+    Mono<Country> findById(Integer id);
 }

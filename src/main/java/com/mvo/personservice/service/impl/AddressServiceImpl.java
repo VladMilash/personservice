@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -19,5 +21,12 @@ public class AddressServiceImpl implements AddressService {
         return addressRepository.save(address)
                 .doOnSuccess(savedAddress -> log.info("Address with id {} has been saved successfully", savedAddress.getId()))
                 .doOnError(error -> log.error("Failed to saving address", error));
+    }
+
+    @Override
+    public Mono<Address> getById(UUID id) {
+        return addressRepository.findById(id)
+                .doOnSuccess(fouindedAddress -> log.info("Address with id {} has been founded successfully", id))
+                .doOnError(error -> log.error("Failed to founding address", error));
     }
 }

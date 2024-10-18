@@ -22,10 +22,9 @@ public class RegistrationRestControllerV1 {
     private final UserMapper userMapper;
 
     @PostMapping
-    public Mono<ResponseEntity<UserDTO>> registration
+    public Mono<UserDTO> registration
             (@RequestBody RegistrationRequestDTO request) {
         return registrationUsersService.registrationUser(request)
-                .map(user -> ResponseEntity.status(HttpStatus.OK)
-                        .body(userMapper.map(user)));
+                .map(userMapper::map);
     }
 }

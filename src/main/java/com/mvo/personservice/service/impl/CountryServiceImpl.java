@@ -17,7 +17,14 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public Mono<Country> findByName(String name) {
         return countryRepository.findByName(name)
-                .doOnSuccess(country -> log.info("Country with name {} was found successfully", country.getName()))
+                .doOnSuccess(country -> log.info("Operation for founding country has successfully done"))
+                .doOnError(error -> log.error("Failed to founding country", error));
+    }
+
+    @Override
+    public Mono<Country> findById(Integer id) {
+        return countryRepository.findById(id)
+                .doOnSuccess(country -> log.info("Country with id {} was found successfully", id))
                 .doOnError(error -> log.error("Failed to founding country", error));
     }
 }

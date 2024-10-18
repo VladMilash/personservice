@@ -1,8 +1,13 @@
 package com.mvo.personservice.service.impl;
 
+import com.mvo.personservice.entity.Address;
+import com.mvo.personservice.entity.Country;
 import com.mvo.personservice.entity.User;
 import com.mvo.personservice.exception.EntityNotFoundException;
 import com.mvo.personservice.repository.UserRepository;
+import com.mvo.personservice.service.AddressService;
+import com.mvo.personservice.service.CountryService;
+import com.mvo.personservice.service.UserHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,9 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements com.mvo.personservice.service.UserService {
     private final UserRepository userRepository;
+    private final UserHistoryService userHistoryService;
+    private final AddressService addressService;
+    private final CountryService countryService;
 
     @Override
     public Mono<User> createUser(User user) {
@@ -40,13 +48,6 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     }
 
     @Override
-    public Mono<Void> deleteById(UUID id) {
-        return userRepository.deleteById(id)
-                .doOnSuccess(aVoid -> log.info("User with id {} has been deleted successfully", id))
-                .doOnError(error -> log.error("Failed to deleted user with id {}", id, error));
-    }
-
-    @Override
     public Mono<User> updateUser(User entity) {
         return userRepository.findById(entity.getId())
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("User is not founded", "NOT_FOUNDED_USER")))
@@ -57,8 +58,27 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                 .doOnError(error -> log.error("Failed to update user with id {}", entity.getId(), error));
     }
 
-    private User setFieldsForUpdateUser(User userFromRequestForUpdate, User foundedForUpdate) {
-        return foundedForUpdate.toBuilder()
+    @Override
+    public Mono<Address> getUserAddressByUserId(UUID id) {
+        return getById(id)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
+                .flatMap(user -> addressService.getById(user.getAddressId()))
+                .doOnSuccess(address -> log.info("Address with id {} has been founded successfully", address.getId()))
+                .doOnError(error -> log.error("Failed to founding address with user id {}", id, error));
+
+    }
+
+    @Override
+    public Mono<Country> getUserCountryByUserId(UUID id) {
+        return getUserAddressByUserId(id)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found address for user with this id", "NOT_FOUNDED_ADDRESS")))
+                .flatMap(address -> countryService.findById(address.getCountryId()))
+                .doOnSuccess(country -> log.info("Country with id {} has been founded successfully", country.getId()))
+                .doOnError(error -> log.error("Failed to founding country with user id {}", id, error));
+    }
+
+    private User setFieldsForUpdateUser(User userFromRequestForUpdate, User userFoundedForUpdate) {
+        return userFoundedForUpdate.toBuilder()
                 .updated(LocalDateTime.now())
                 .created(userFromRequestForUpdate.getCreated())
                 .filled(userFromRequestForUpdate.getFilled())

@@ -1,7 +1,8 @@
 package com.mvo.personservice.service;
 
+import com.mvo.personservice.entity.Address;
+import com.mvo.personservice.entity.Country;
 import com.mvo.personservice.entity.User;
-import dto.RegistrationRequestDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,7 +15,9 @@ public interface UserService {
 
     Flux<User> getAll();
 
-    Mono<Void> deleteById(UUID id);
-
     Mono<User> updateUser(User entity);
+
+    Mono<Address> getUserAddressByUserId(UUID id);
+
+    Mono<Country> getUserCountryByUserId(UUID id);
 }
