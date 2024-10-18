@@ -36,14 +36,14 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     @Override
     public Mono<User> getById(UUID id) {
         return userRepository.findById(id)
-                .doOnSuccess(user -> log.info("User with id {} has been finding successfully", id))
+                .doOnSuccess(user -> log.info("User with id {} has been found", id))
                 .doOnError(error -> log.error("Failed to finding user with id {}", id, error));
     }
 
     @Override
     public Flux<User> getAll() {
         return userRepository.findAll()
-                .doOnNext(user -> log.info("Users has been finding successfully"))
+                .doOnNext(user -> log.info("Users has been found"))
                 .doOnError(error -> log.error("Failed to finding users", error));
     }
 
@@ -63,7 +63,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
         return getById(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
                 .flatMap(user -> addressService.getById(user.getAddressId()))
-                .doOnSuccess(address -> log.info("Address with id {} has been founded successfully", address.getId()))
+                .doOnSuccess(address -> log.info("Address with id {} has been found", address.getId()))
                 .doOnError(error -> log.error("Failed to founding address with user id {}", id, error));
 
     }
@@ -73,7 +73,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
         return getUserAddressByUserId(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found address for user with this id", "NOT_FOUNDED_ADDRESS")))
                 .flatMap(address -> countryService.findById(address.getCountryId()))
-                .doOnSuccess(country -> log.info("Country with id {} has been founded successfully", country.getId()))
+                .doOnSuccess(country -> log.info("Country with id {} has been found", country.getId()))
                 .doOnError(error -> log.error("Failed to founding country with user id {}", id, error));
     }
 
