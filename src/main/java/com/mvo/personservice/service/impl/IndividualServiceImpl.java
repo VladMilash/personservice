@@ -6,7 +6,10 @@ import com.mvo.personservice.service.IndividualService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +28,13 @@ public class IndividualServiceImpl implements IndividualService {
     public Mono<Individual> findByEmail(String email) {
         return individualRepository.findByEmail(email)
                 .doOnSuccess(individual -> log.info("Operation for founding has finished successfully"))
+                .doOnError(error -> log.error("Failed to founding individual", error));
+    }
+
+    @Override
+    public Flux<Individual> findByUserId(UUID id) {
+        return individualRepository.findByUserId(id)
+                .doOnComplete(() -> log.info("Operation for finding individuals by userId {} has finished successfully", id))
                 .doOnError(error -> log.error("Failed to founding individual", error));
     }
 }

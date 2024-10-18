@@ -2,11 +2,13 @@ package com.mvo.personservice.service.impl;
 
 import com.mvo.personservice.entity.Address;
 import com.mvo.personservice.entity.Country;
+import com.mvo.personservice.entity.Individual;
 import com.mvo.personservice.entity.User;
 import com.mvo.personservice.exception.EntityNotFoundException;
 import com.mvo.personservice.repository.UserRepository;
 import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.CountryService;
+import com.mvo.personservice.service.IndividualService;
 import com.mvo.personservice.service.UserHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     private final UserHistoryService userHistoryService;
     private final AddressService addressService;
     private final CountryService countryService;
+    private final IndividualService individualService;
 
     @Override
     public Mono<User> createUser(User user) {
@@ -43,7 +46,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     @Override
     public Flux<User> getAll() {
         return userRepository.findAll()
-                .doOnNext(user -> log.info("Users has been found"))
+                .doOnComplete(() -> log.info("Users has been found"))
                 .doOnError(error -> log.error("Failed to finding users", error));
     }
 
@@ -51,7 +54,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     public Mono<User> updateUser(User entity) {
         return userRepository.findById(entity.getId())
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("User is not founded", "NOT_FOUNDED_USER")))
-                .doOnError(error -> log.error("Failed to founding user for update"))
+                .doOnError(error -> log.error("Failed to finding user for update"))
                 .map(user -> setFieldsForUpdateUser(entity, user))
                 .flatMap(userRepository::save)
                 .doOnSuccess(user -> log.info("User with id {} has been updated successfully", user.getId()))
@@ -64,7 +67,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
                 .flatMap(user -> addressService.getById(user.getAddressId()))
                 .doOnSuccess(address -> log.info("Address with id {} has been found", address.getId()))
-                .doOnError(error -> log.error("Failed to founding address with user id {}", id, error));
+                .doOnError(error -> log.error("Failed to finding address with user id {}", id, error));
 
     }
 
@@ -74,7 +77,16 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found address for user with this id", "NOT_FOUNDED_ADDRESS")))
                 .flatMap(address -> countryService.findById(address.getCountryId()))
                 .doOnSuccess(country -> log.info("Country with id {} has been found", country.getId()))
-                .doOnError(error -> log.error("Failed to founding country with user id {}", id, error));
+                .doOnError(error -> log.error("Failed to finding country with user id {}", id, error));
+    }
+
+    @Override
+    public Flux<Individual> getIndividualsByUserId(UUID id) {
+        return getById(id)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
+                .flatMapMany(user -> individualService.findByUserId(id))
+                .doOnComplete(() -> log.info("Operation for finding individuals by userId {} completed", id))
+                .doOnError(error -> log.error("Failed to finding individuals by userId {}", id, error));
     }
 
     private User setFieldsForUpdateUser(User userFromRequestForUpdate, User userFoundedForUpdate) {

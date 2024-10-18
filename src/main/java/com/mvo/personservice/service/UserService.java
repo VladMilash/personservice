@@ -2,6 +2,7 @@ package com.mvo.personservice.service;
 
 import com.mvo.personservice.entity.Address;
 import com.mvo.personservice.entity.Country;
+import com.mvo.personservice.entity.Individual;
 import com.mvo.personservice.entity.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,4 +21,6 @@ public interface UserService {
     Mono<Address> getUserAddressByUserId(UUID id);
 
     Mono<Country> getUserCountryByUserId(UUID id);
+
+    Flux<Individual> getIndividualsByUserId(UUID id);
 }
