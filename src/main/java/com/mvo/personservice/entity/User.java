@@ -1,6 +1,7 @@
 package com.mvo.personservice.entity;
 
 import dto.status.Status;
+import dto.status.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,7 +45,7 @@ public class User {
     private LocalDateTime archivedAt;
 
     @Column("Status")
-    private Status status;
+    private UserStatus status;
 
     @Column("filled")
     private Boolean filled;

@@ -33,9 +33,6 @@ public class UserHistory {
     @Column("reason")
     private String reason;
 
-    @Column("comment")
-    private String comment;
-
     @Column("changed_values")
     private String changedValues;
 }

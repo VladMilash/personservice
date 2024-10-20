@@ -10,6 +10,7 @@ import com.mvo.personservice.exception.EntityNotFoundException;
 import com.mvo.personservice.service.*;
 import dto.RegistrationRequestDTO;
 import dto.status.Status;
+import dto.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
                 .filled(true)
                 .verifiedAt(LocalDateTime.now())
                 .archivedAt(LocalDateTime.now())
-                .status(Status.ACTIVE)
+                .status(UserStatus.IN_PROGRESS)
                 .build();
     }
 
