@@ -86,7 +86,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("User not found", "USER_NOT_FOUND")))
                 .flatMap(foundUser -> {
                     Map<String, Object> changedValues = new HashMap<>();
-                    User updatedUser = checkAndSetFieldsForUpdate(entity, foundUser, changedValues);
+                    User updatedUser = updateUserFields(entity, foundUser, changedValues);
                     return createUser(updatedUser)
                             .then(Mono.just(createUserHistoryEntity(updatedUser, createJson(changedValues))))
                             .flatMap(userHistoryService::save);
@@ -96,33 +96,33 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
 
     }
 
-    private User checkAndSetFieldsForUpdate(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
-        updateFields(userFromRequestForUpdate::getSecretKey, userFoundedForUpdate::getSecretKey,
+    private User updateUserFields(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
+        checkAndUpdateFields(userFromRequestForUpdate::getSecretKey, userFoundedForUpdate::getSecretKey,
                 "SecretKey", userFoundedForUpdate::setSecretKey, changedValues);
 
-        updateFields(userFromRequestForUpdate::getFirstName, userFoundedForUpdate::getFirstName,
+        checkAndUpdateFields(userFromRequestForUpdate::getFirstName, userFoundedForUpdate::getFirstName,
                 "First_name", userFoundedForUpdate::setFirstName, changedValues);
 
-        updateFields(userFromRequestForUpdate::getLastName, userFoundedForUpdate::getLastName,
+        checkAndUpdateFields(userFromRequestForUpdate::getLastName, userFoundedForUpdate::getLastName,
                 "Last_name", userFoundedForUpdate::setLastName, changedValues);
 
-        updateLocalDateTimeFields(userFromRequestForUpdate::getVerifiedAt, userFoundedForUpdate::getVerifiedAt,
+        checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getVerifiedAt, userFoundedForUpdate::getVerifiedAt,
                 "Verified_at", userFoundedForUpdate::setVerifiedAt, changedValues);
 
-        updateLocalDateTimeFields(userFromRequestForUpdate::getArchivedAt, userFoundedForUpdate::getArchivedAt,
+        checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getArchivedAt, userFoundedForUpdate::getArchivedAt,
                 "Archived_at", userFoundedForUpdate::setArchivedAt, changedValues);
 
-        updateFields(userFromRequestForUpdate::getStatus, userFoundedForUpdate::getStatus,
+        checkAndUpdateFields(userFromRequestForUpdate::getStatus, userFoundedForUpdate::getStatus,
                 "Status", userFoundedForUpdate::setStatus, changedValues);
 
-        updateFields(userFromRequestForUpdate::getFilled, userFoundedForUpdate::getFilled,
+        checkAndUpdateFields(userFromRequestForUpdate::getFilled, userFoundedForUpdate::getFilled,
                 "Filled", userFoundedForUpdate::setFilled, changedValues);
 
         return userFoundedForUpdate;
     }
 
-    private <T> void updateFields(Supplier<T> fieldGetterFromUserFromRequest, Supplier<T> fieldGetterFromUserFoundedForUpdate,
-                                  String fieldName, Consumer<T> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
+    private <T> void checkAndUpdateFields(Supplier<T> fieldGetterFromUserFromRequest, Supplier<T> fieldGetterFromUserFoundedForUpdate,
+                                          String fieldName, Consumer<T> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
         if ((fieldGetterFromUserFromRequest.get() != null)
                 && !fieldGetterFromUserFromRequest.get().equals(fieldGetterFromUserFoundedForUpdate.get())) {
             fieldSetterFromUserFoundedForUpdate.accept(fieldGetterFromUserFromRequest.get());
@@ -130,8 +130,8 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
         }
     }
 
-    private void updateLocalDateTimeFields(Supplier<LocalDateTime> fieldGetterFromUserFromRequest, Supplier<LocalDateTime> fieldGetterFromUserFoundedForUpdate,
-                                           String fieldName, Consumer<LocalDateTime> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
+    private void checkAndUpdateLocalDateTimeFields(Supplier<LocalDateTime> fieldGetterFromUserFromRequest, Supplier<LocalDateTime> fieldGetterFromUserFoundedForUpdate,
+                                                   String fieldName, Consumer<LocalDateTime> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
         if ((fieldGetterFromUserFromRequest.get() != null)
                 && !fieldGetterFromUserFromRequest.get().withNano(0).equals(fieldGetterFromUserFoundedForUpdate.get().withNano(0))) {
             fieldSetterFromUserFoundedForUpdate.accept(fieldGetterFromUserFromRequest.get());
