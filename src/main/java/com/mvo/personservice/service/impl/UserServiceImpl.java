@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -80,60 +82,61 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
 
     @Override
     public Mono<UserHistory> updateUser(User entity) {
-        Map<String, Object> changedValues = new HashMap<>();
         return userRepository.findById(entity.getId())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("User is not founded", "NOT_FOUNDED_USER")))
-                .doOnError(error -> log.error("Failed to finding user for update"))
-                .map(user-> processingOfUpdatingUser(entity,user,changedValues))
-                .flatMap(userHistoryService::save)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("User not found", "USER_NOT_FOUND")))
+                .flatMap(foundUser -> {
+                    Map<String, Object> changedValues = new HashMap<>();
+                    User updatedUser = checkAndSetFieldsForUpdate(entity, foundUser, changedValues);
+                    return createUser(updatedUser)
+                            .then(Mono.just(createUserHistoryEntity(updatedUser, createJson(changedValues))))
+                            .flatMap(userHistoryService::save);
+                })
                 .doOnSuccess(userHistory -> log.info("User with id {} has been updated successfully", entity.getId()))
                 .doOnError(error -> log.error("Failed to update user with id {}", entity.getId(), error));
+
     }
 
-    private UserHistory processingOfUpdatingUser(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
-        Map<String, Object> map = changedValues;
-        User updatedUser = checkAndSetFieldsForUprate(userFromRequestForUpdate, userFoundedForUpdate, map);
-        createUser(updatedUser).subscribe();
-        String json = createJson(map);
-        return createUserHistoryEntity(updatedUser,json);
-    }
+    private User checkAndSetFieldsForUpdate(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
+        updateFields(userFromRequestForUpdate::getSecretKey, userFoundedForUpdate::getSecretKey,
+                "SecretKey", userFoundedForUpdate::setSecretKey, changedValues);
 
-    private User checkAndSetFieldsForUprate(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
-        if ((userFromRequestForUpdate.getSecretKey() != null) && (!userFromRequestForUpdate.getSecretKey().equals(userFoundedForUpdate.getSecretKey()))) {
-            userFoundedForUpdate.setSecretKey(userFromRequestForUpdate.getSecretKey());
-            changedValues.put("SecretKey", userFromRequestForUpdate.getSecretKey());
-        }
+        updateFields(userFromRequestForUpdate::getFirstName, userFoundedForUpdate::getFirstName,
+                "First_name", userFoundedForUpdate::setFirstName, changedValues);
 
-        if ((userFromRequestForUpdate.getFirstName() != null) && (!userFromRequestForUpdate.getFirstName().equals(userFoundedForUpdate.getFirstName()))) {
-            userFoundedForUpdate.setFirstName(userFromRequestForUpdate.getFirstName());
-            changedValues.put("First_name", userFromRequestForUpdate.getFirstName());
-        }
+        updateFields(userFromRequestForUpdate::getLastName, userFoundedForUpdate::getLastName,
+                "Last_name", userFoundedForUpdate::setLastName, changedValues);
 
-        if ((userFromRequestForUpdate.getLastName() != null) && (!userFromRequestForUpdate.getLastName().equals(userFoundedForUpdate.getLastName()))) {
-            userFoundedForUpdate.setLastName(userFromRequestForUpdate.getLastName());
-            changedValues.put("Last_name", userFromRequestForUpdate.getLastName());
-        }
+        updateLocalDateTimeFields(userFromRequestForUpdate::getVerifiedAt, userFoundedForUpdate::getVerifiedAt,
+                "Verified_at", userFoundedForUpdate::setVerifiedAt, changedValues);
 
-        if ((userFromRequestForUpdate.getVerifiedAt() != null) && (!userFromRequestForUpdate.getVerifiedAt().withNano(0).equals(userFoundedForUpdate.getVerifiedAt().withNano(0)))) {
-            userFoundedForUpdate.setVerifiedAt(userFromRequestForUpdate.getVerifiedAt());
-            changedValues.put("Verified_at", userFromRequestForUpdate.getVerifiedAt());
-        }
+        updateLocalDateTimeFields(userFromRequestForUpdate::getArchivedAt, userFoundedForUpdate::getArchivedAt,
+                "Archived_at", userFoundedForUpdate::setArchivedAt, changedValues);
 
-        if ((userFromRequestForUpdate.getArchivedAt() != null) && (!userFromRequestForUpdate.getArchivedAt().withNano(0).equals(userFoundedForUpdate.getArchivedAt().withNano(0)))) {
-            userFoundedForUpdate.setArchivedAt(userFromRequestForUpdate.getArchivedAt());
-            changedValues.put("Archived_at", userFromRequestForUpdate.getArchivedAt());
-        }
+        updateFields(userFromRequestForUpdate::getStatus, userFoundedForUpdate::getStatus,
+                "Status", userFoundedForUpdate::setStatus, changedValues);
 
-        if ((userFromRequestForUpdate.getStatus() != null) && (!userFromRequestForUpdate.getStatus().equals(userFoundedForUpdate.getStatus()))) {
-            userFoundedForUpdate.setStatus(userFromRequestForUpdate.getStatus());
-            changedValues.put("Status", userFromRequestForUpdate.getStatus());
-        }
+        updateFields(userFromRequestForUpdate::getFilled, userFoundedForUpdate::getFilled,
+                "Filled", userFoundedForUpdate::setFilled, changedValues);
 
-        if ((userFromRequestForUpdate.getFilled() != null) && (!userFromRequestForUpdate.getFilled().equals(userFoundedForUpdate.getFilled()))) {
-            userFoundedForUpdate.setFilled(userFromRequestForUpdate.getFilled());
-            changedValues.put("Filled", userFromRequestForUpdate.getFilled());
-        }
         return userFoundedForUpdate;
+    }
+
+    private <T> void updateFields(Supplier<T> fieldGetterFromUserFromRequest, Supplier<T> fieldGetterFromUserFoundedForUpdate,
+                                  String fieldName, Consumer<T> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
+        if ((fieldGetterFromUserFromRequest.get() != null)
+                && !fieldGetterFromUserFromRequest.get().equals(fieldGetterFromUserFoundedForUpdate.get())) {
+            fieldSetterFromUserFoundedForUpdate.accept(fieldGetterFromUserFromRequest.get());
+            changedValues.put(fieldName, fieldGetterFromUserFromRequest.get());
+        }
+    }
+
+    private void updateLocalDateTimeFields(Supplier<LocalDateTime> fieldGetterFromUserFromRequest, Supplier<LocalDateTime> fieldGetterFromUserFoundedForUpdate,
+                                           String fieldName, Consumer<LocalDateTime> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
+        if ((fieldGetterFromUserFromRequest.get() != null)
+                && !fieldGetterFromUserFromRequest.get().withNano(0).equals(fieldGetterFromUserFoundedForUpdate.get().withNano(0))) {
+            fieldSetterFromUserFoundedForUpdate.accept(fieldGetterFromUserFromRequest.get());
+            changedValues.put(fieldName, fieldGetterFromUserFromRequest.get());
+        }
     }
 
     private String createJson(Map<String, Object> changedValues) {
@@ -156,14 +159,10 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
 
         jsonBuilder.append("}");
 
-        System.out.println(jsonBuilder.toString());
-
         return jsonBuilder.toString();
     }
 
     private UserHistory createUserHistoryEntity(User updatedUser, String changedValues) {
-
-        System.out.println(Json.of(changedValues));
         return UserHistory.builder()
                 .created(LocalDateTime.now())
                 .userId(updatedUser.getId())
