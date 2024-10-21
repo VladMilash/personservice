@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,42 +93,43 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     private UserHistory processingOfUpdatingUser(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
         Map<String, Object> map = changedValues;
         User updatedUser = checkAndSetFieldsForUprate(userFromRequestForUpdate, userFoundedForUpdate, map);
+        createUser(updatedUser).subscribe();
         String json = createJson(map);
         return createUserHistoryEntity(updatedUser,json);
     }
 
     private User checkAndSetFieldsForUprate(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
-        if ((userFromRequestForUpdate.getSecretKey() != null) && (userFromRequestForUpdate.getSecretKey().equals(userFoundedForUpdate.getSecretKey()))) {
+        if ((userFromRequestForUpdate.getSecretKey() != null) && (!userFromRequestForUpdate.getSecretKey().equals(userFoundedForUpdate.getSecretKey()))) {
             userFoundedForUpdate.setSecretKey(userFromRequestForUpdate.getSecretKey());
             changedValues.put("SecretKey", userFromRequestForUpdate.getSecretKey());
         }
 
-        if ((userFromRequestForUpdate.getFirstName() != null) && (userFromRequestForUpdate.getFirstName().equals(userFoundedForUpdate.getFirstName()))) {
+        if ((userFromRequestForUpdate.getFirstName() != null) && (!userFromRequestForUpdate.getFirstName().equals(userFoundedForUpdate.getFirstName()))) {
             userFoundedForUpdate.setFirstName(userFromRequestForUpdate.getFirstName());
             changedValues.put("First_name", userFromRequestForUpdate.getFirstName());
         }
 
-        if ((userFromRequestForUpdate.getLastName() != null) && (userFromRequestForUpdate.getLastName().equals(userFoundedForUpdate.getLastName()))) {
+        if ((userFromRequestForUpdate.getLastName() != null) && (!userFromRequestForUpdate.getLastName().equals(userFoundedForUpdate.getLastName()))) {
             userFoundedForUpdate.setLastName(userFromRequestForUpdate.getLastName());
             changedValues.put("Last_name", userFromRequestForUpdate.getLastName());
         }
 
-        if ((userFromRequestForUpdate.getVerifiedAt() != null) && (userFromRequestForUpdate.getVerifiedAt().equals(userFoundedForUpdate.getVerifiedAt()))) {
+        if ((userFromRequestForUpdate.getVerifiedAt() != null) && (!userFromRequestForUpdate.getVerifiedAt().withNano(0).equals(userFoundedForUpdate.getVerifiedAt().withNano(0)))) {
             userFoundedForUpdate.setVerifiedAt(userFromRequestForUpdate.getVerifiedAt());
             changedValues.put("Verified_at", userFromRequestForUpdate.getVerifiedAt());
         }
 
-        if ((userFromRequestForUpdate.getArchivedAt() != null) && (userFromRequestForUpdate.getArchivedAt().equals(userFoundedForUpdate.getArchivedAt()))) {
+        if ((userFromRequestForUpdate.getArchivedAt() != null) && (!userFromRequestForUpdate.getArchivedAt().withNano(0).equals(userFoundedForUpdate.getArchivedAt().withNano(0)))) {
             userFoundedForUpdate.setArchivedAt(userFromRequestForUpdate.getArchivedAt());
             changedValues.put("Archived_at", userFromRequestForUpdate.getArchivedAt());
         }
 
-        if ((userFromRequestForUpdate.getStatus() != null) && (userFromRequestForUpdate.getStatus().equals(userFoundedForUpdate.getStatus()))) {
+        if ((userFromRequestForUpdate.getStatus() != null) && (!userFromRequestForUpdate.getStatus().equals(userFoundedForUpdate.getStatus()))) {
             userFoundedForUpdate.setStatus(userFromRequestForUpdate.getStatus());
             changedValues.put("Status", userFromRequestForUpdate.getStatus());
         }
 
-        if ((userFromRequestForUpdate.getFilled() != null) && (userFromRequestForUpdate.getFilled().equals(userFoundedForUpdate.getFilled()))) {
+        if ((userFromRequestForUpdate.getFilled() != null) && (!userFromRequestForUpdate.getFilled().equals(userFoundedForUpdate.getFilled()))) {
             userFoundedForUpdate.setFilled(userFromRequestForUpdate.getFilled());
             changedValues.put("Filled", userFromRequestForUpdate.getFilled());
         }
