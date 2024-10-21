@@ -1,9 +1,6 @@
 package com.mvo.personservice.service;
 
-import com.mvo.personservice.entity.Address;
-import com.mvo.personservice.entity.Country;
-import com.mvo.personservice.entity.Individual;
-import com.mvo.personservice.entity.User;
+import com.mvo.personservice.entity.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +13,7 @@ public interface UserService {
 
     Flux<User> getAll();
 
-    Mono<User> updateUser(User entity);
+    Mono<UserHistory> updateUser(User entity);
 
     Mono<Address> getUserAddressByUserId(UUID id);
 

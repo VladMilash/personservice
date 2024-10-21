@@ -1,6 +1,8 @@
 package com.mvo.personservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import dto.status.Status;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,5 +36,5 @@ public class UserHistory {
     private String reason;
 
     @Column("changed_values")
-    private String changedValues;
+    private Json changedValues;
 }

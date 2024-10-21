@@ -1,22 +1,23 @@
 package com.mvo.personservice.service.impl;
 
-import com.mvo.personservice.entity.Address;
-import com.mvo.personservice.entity.Country;
-import com.mvo.personservice.entity.Individual;
-import com.mvo.personservice.entity.User;
+import com.mvo.personservice.entity.*;
 import com.mvo.personservice.exception.EntityNotFoundException;
 import com.mvo.personservice.repository.UserRepository;
 import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.CountryService;
 import com.mvo.personservice.service.IndividualService;
 import com.mvo.personservice.service.UserHistoryService;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -51,17 +52,6 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     }
 
     @Override
-    public Mono<User> updateUser(User entity) {
-        return userRepository.findById(entity.getId())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("User is not founded", "NOT_FOUNDED_USER")))
-                .doOnError(error -> log.error("Failed to finding user for update"))
-                .map(user -> setFieldsForUpdateUser(entity, user))
-                .flatMap(userRepository::save)
-                .doOnSuccess(user -> log.info("User with id {} has been updated successfully", user.getId()))
-                .doOnError(error -> log.error("Failed to update user with id {}", entity.getId(), error));
-    }
-
-    @Override
     public Mono<Address> getUserAddressByUserId(UUID id) {
         return getById(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
@@ -89,18 +79,98 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                 .doOnError(error -> log.error("Failed to finding individuals by userId {}", id, error));
     }
 
-    private User setFieldsForUpdateUser(User userFromRequestForUpdate, User userFoundedForUpdate) {
-        return userFoundedForUpdate.toBuilder()
-                .updated(LocalDateTime.now())
-                .created(userFromRequestForUpdate.getCreated())
-                .filled(userFromRequestForUpdate.getFilled())
-                .status(userFromRequestForUpdate.getStatus())
-                .verifiedAt(userFromRequestForUpdate.getVerifiedAt())
-                .firstName(userFromRequestForUpdate.getFirstName())
-                .lastName(userFromRequestForUpdate.getLastName())
-                .addressId(userFromRequestForUpdate.getAddressId())
-                .archivedAt(userFromRequestForUpdate.getArchivedAt())
-                .secretKey(userFromRequestForUpdate.getSecretKey())
+    @Override
+    public Mono<UserHistory> updateUser(User entity) {
+        Map<String, Object> changedValues = new HashMap<>();
+        return userRepository.findById(entity.getId())
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("User is not founded", "NOT_FOUNDED_USER")))
+                .doOnError(error -> log.error("Failed to finding user for update"))
+                .map(user-> processingOfUpdatingUser(entity,user,changedValues))
+                .flatMap(userHistoryService::save)
+                .doOnSuccess(userHistory -> log.info("User with id {} has been updated successfully", entity.getId()))
+                .doOnError(error -> log.error("Failed to update user with id {}", entity.getId(), error));
+    }
+
+    private UserHistory processingOfUpdatingUser(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
+        Map<String, Object> map = changedValues;
+        User updatedUser = checkAndSetFieldsForUprate(userFromRequestForUpdate, userFoundedForUpdate, map);
+        String json = createJson(map);
+        return createUserHistoryEntity(updatedUser,json);
+    }
+
+    private User checkAndSetFieldsForUprate(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
+        if ((userFromRequestForUpdate.getSecretKey() != null) && (userFromRequestForUpdate.getSecretKey().equals(userFoundedForUpdate.getSecretKey()))) {
+            userFoundedForUpdate.setSecretKey(userFromRequestForUpdate.getSecretKey());
+            changedValues.put("SecretKey", userFromRequestForUpdate.getSecretKey());
+        }
+
+        if ((userFromRequestForUpdate.getFirstName() != null) && (userFromRequestForUpdate.getFirstName().equals(userFoundedForUpdate.getFirstName()))) {
+            userFoundedForUpdate.setFirstName(userFromRequestForUpdate.getFirstName());
+            changedValues.put("First_name", userFromRequestForUpdate.getFirstName());
+        }
+
+        if ((userFromRequestForUpdate.getLastName() != null) && (userFromRequestForUpdate.getLastName().equals(userFoundedForUpdate.getLastName()))) {
+            userFoundedForUpdate.setLastName(userFromRequestForUpdate.getLastName());
+            changedValues.put("Last_name", userFromRequestForUpdate.getLastName());
+        }
+
+        if ((userFromRequestForUpdate.getVerifiedAt() != null) && (userFromRequestForUpdate.getVerifiedAt().equals(userFoundedForUpdate.getVerifiedAt()))) {
+            userFoundedForUpdate.setVerifiedAt(userFromRequestForUpdate.getVerifiedAt());
+            changedValues.put("Verified_at", userFromRequestForUpdate.getVerifiedAt());
+        }
+
+        if ((userFromRequestForUpdate.getArchivedAt() != null) && (userFromRequestForUpdate.getArchivedAt().equals(userFoundedForUpdate.getArchivedAt()))) {
+            userFoundedForUpdate.setArchivedAt(userFromRequestForUpdate.getArchivedAt());
+            changedValues.put("Archived_at", userFromRequestForUpdate.getArchivedAt());
+        }
+
+        if ((userFromRequestForUpdate.getStatus() != null) && (userFromRequestForUpdate.getStatus().equals(userFoundedForUpdate.getStatus()))) {
+            userFoundedForUpdate.setStatus(userFromRequestForUpdate.getStatus());
+            changedValues.put("Status", userFromRequestForUpdate.getStatus());
+        }
+
+        if ((userFromRequestForUpdate.getFilled() != null) && (userFromRequestForUpdate.getFilled().equals(userFoundedForUpdate.getFilled()))) {
+            userFoundedForUpdate.setFilled(userFromRequestForUpdate.getFilled());
+            changedValues.put("Filled", userFromRequestForUpdate.getFilled());
+        }
+        return userFoundedForUpdate;
+    }
+
+    private String createJson(Map<String, Object> changedValues) {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("{");
+
+        changedValues.forEach((key, value) -> {
+            jsonBuilder.append("\"")
+                    .append(key)
+                    .append("\": ")
+                    .append("\"")
+                    .append(value)
+                    .append("\"")
+                    .append(", ");
+        });
+
+        if (jsonBuilder.length() > 1) {
+            jsonBuilder.setLength(jsonBuilder.length() - 2);
+        }
+
+        jsonBuilder.append("}");
+
+        System.out.println(jsonBuilder.toString());
+
+        return jsonBuilder.toString();
+    }
+
+    private UserHistory createUserHistoryEntity(User updatedUser, String changedValues) {
+
+        System.out.println(Json.of(changedValues));
+        return UserHistory.builder()
+                .created(LocalDateTime.now())
+                .userId(updatedUser.getId())
+                .reason("BY_SYSTEM")
+                .userType("user")
+                .changedValues(Json.of(changedValues))
                 .build();
     }
+
 }

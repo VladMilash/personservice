@@ -1,14 +1,8 @@
 package com.mvo.personservice.rest;
 
-import com.mvo.personservice.mapper.AddressMapper;
-import com.mvo.personservice.mapper.CountryMapper;
-import com.mvo.personservice.mapper.IndividualMapper;
-import com.mvo.personservice.mapper.UserMapper;
+import com.mvo.personservice.mapper.*;
 import com.mvo.personservice.service.UserService;
-import dto.AddressDTO;
-import dto.CountryDTO;
-import dto.IndividualDTO;
-import dto.UserDTO;
+import dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -25,6 +19,7 @@ public class UserRestControllerV1 {
     private final AddressMapper addressMapper;
     private final CountryMapper countryMapper;
     private final IndividualMapper individualMapper;
+    private final UserHistoryMapper userHistoryMapper;
 
     @GetMapping
     public Flux<UserDTO> getAll() {
@@ -56,4 +51,10 @@ public class UserRestControllerV1 {
                 .map(individualMapper::map);
     }
 
+    @PutMapping()
+    public Mono<UserHistoryDTO> updateUser
+            (@RequestBody UserDTO userDTO) {
+        return userService.updateUser(userMapper.map(userDTO))
+                .map(userHistoryMapper::map);
+    }
 }
