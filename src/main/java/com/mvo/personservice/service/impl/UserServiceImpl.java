@@ -7,19 +7,16 @@ import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.CountryService;
 import com.mvo.personservice.service.IndividualService;
 import com.mvo.personservice.service.UserHistoryService;
-import io.r2dbc.postgresql.codec.Json;
+import com.mvo.personservice.service.impl.util.UpdateEntityHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +27,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     private final AddressService addressService;
     private final CountryService countryService;
     private final IndividualService individualService;
+    private final UpdateEntityHelper updateEntityHelper;
 
     @Override
     public Mono<User> createUser(User user) {
@@ -88,7 +86,7 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                     Map<String, Object> changedValues = new HashMap<>();
                     User updatedUser = updateUserFields(entity, foundUser, changedValues);
                     return createUser(updatedUser)
-                            .then(Mono.just(createUserHistoryEntity(updatedUser, createJson(changedValues))))
+                            .then(Mono.just(updateEntityHelper.createUserHistoryEntity(updatedUser, updateEntityHelper.createJson(changedValues))))
                             .flatMap(userHistoryService::save);
                 })
                 .doOnSuccess(userHistory -> log.info("User with id {} has been updated successfully", entity.getId()))
@@ -97,79 +95,27 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     }
 
     private User updateUserFields(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
-        checkAndUpdateFields(userFromRequestForUpdate::getSecretKey, userFoundedForUpdate::getSecretKey,
+        updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getSecretKey, userFoundedForUpdate::getSecretKey,
                 "SecretKey", userFoundedForUpdate::setSecretKey, changedValues);
 
-        checkAndUpdateFields(userFromRequestForUpdate::getFirstName, userFoundedForUpdate::getFirstName,
+        updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getFirstName, userFoundedForUpdate::getFirstName,
                 "First_name", userFoundedForUpdate::setFirstName, changedValues);
 
-        checkAndUpdateFields(userFromRequestForUpdate::getLastName, userFoundedForUpdate::getLastName,
+        updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getLastName, userFoundedForUpdate::getLastName,
                 "Last_name", userFoundedForUpdate::setLastName, changedValues);
 
-        checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getVerifiedAt, userFoundedForUpdate::getVerifiedAt,
+        updateEntityHelper.checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getVerifiedAt, userFoundedForUpdate::getVerifiedAt,
                 "Verified_at", userFoundedForUpdate::setVerifiedAt, changedValues);
 
-        checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getArchivedAt, userFoundedForUpdate::getArchivedAt,
+        updateEntityHelper.checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getArchivedAt, userFoundedForUpdate::getArchivedAt,
                 "Archived_at", userFoundedForUpdate::setArchivedAt, changedValues);
 
-        checkAndUpdateFields(userFromRequestForUpdate::getStatus, userFoundedForUpdate::getStatus,
+        updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getStatus, userFoundedForUpdate::getStatus,
                 "Status", userFoundedForUpdate::setStatus, changedValues);
 
-        checkAndUpdateFields(userFromRequestForUpdate::getFilled, userFoundedForUpdate::getFilled,
+        updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getFilled, userFoundedForUpdate::getFilled,
                 "Filled", userFoundedForUpdate::setFilled, changedValues);
 
         return userFoundedForUpdate;
     }
-
-    private <T> void checkAndUpdateFields(Supplier<T> fieldGetterFromUserFromRequest, Supplier<T> fieldGetterFromUserFoundedForUpdate,
-                                          String fieldName, Consumer<T> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
-        if ((fieldGetterFromUserFromRequest.get() != null)
-                && !fieldGetterFromUserFromRequest.get().equals(fieldGetterFromUserFoundedForUpdate.get())) {
-            fieldSetterFromUserFoundedForUpdate.accept(fieldGetterFromUserFromRequest.get());
-            changedValues.put(fieldName, fieldGetterFromUserFromRequest.get());
-        }
-    }
-
-    private void checkAndUpdateLocalDateTimeFields(Supplier<LocalDateTime> fieldGetterFromUserFromRequest, Supplier<LocalDateTime> fieldGetterFromUserFoundedForUpdate,
-                                                   String fieldName, Consumer<LocalDateTime> fieldSetterFromUserFoundedForUpdate, Map<String, Object> changedValues) {
-        if ((fieldGetterFromUserFromRequest.get() != null)
-                && !fieldGetterFromUserFromRequest.get().withNano(0).equals(fieldGetterFromUserFoundedForUpdate.get().withNano(0))) {
-            fieldSetterFromUserFoundedForUpdate.accept(fieldGetterFromUserFromRequest.get());
-            changedValues.put(fieldName, fieldGetterFromUserFromRequest.get());
-        }
-    }
-
-    private String createJson(Map<String, Object> changedValues) {
-        StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("{");
-
-        changedValues.forEach((key, value) -> {
-            jsonBuilder.append("\"")
-                    .append(key)
-                    .append("\": ")
-                    .append("\"")
-                    .append(value)
-                    .append("\"")
-                    .append(", ");
-        });
-
-        if (jsonBuilder.length() > 1) {
-            jsonBuilder.setLength(jsonBuilder.length() - 2);
-        }
-
-        jsonBuilder.append("}");
-
-        return jsonBuilder.toString();
-    }
-
-    private UserHistory createUserHistoryEntity(User updatedUser, String changedValues) {
-        return UserHistory.builder()
-                .created(LocalDateTime.now())
-                .userId(updatedUser.getId())
-                .reason("BY_SYSTEM")
-                .userType("user")
-                .changedValues(Json.of(changedValues))
-                .build();
-    }
-
 }
