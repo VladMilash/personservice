@@ -1,6 +1,7 @@
 package com.mvo.personservice.rest;
 
 import com.mvo.personservice.mapper.*;
+import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.UserService;
 import dto.*;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class UserRestControllerV1 {
     private final CountryMapper countryMapper;
     private final IndividualMapper individualMapper;
     private final UserHistoryMapper userHistoryMapper;
+    private final AddressService addressService;
 
     @GetMapping
     public Flux<UserDTO> getAll() {
@@ -56,5 +58,13 @@ public class UserRestControllerV1 {
             (@RequestBody UserDTO userDTO) {
         return userService.updateUser(userMapper.map(userDTO))
                 .map(userHistoryMapper::map);
+    }
+
+    @PutMapping("address/{userId}")
+    public Mono<UserHistoryDTO> updateAddress
+            (@PathVariable("userId") UUID userId, @RequestBody AddressDTO addressDTO) {
+        return addressService.updateAddress(userId, addressMapper.map(addressDTO))
+                .map(userHistoryMapper::map);
+
     }
 }

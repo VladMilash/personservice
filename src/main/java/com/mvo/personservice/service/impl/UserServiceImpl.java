@@ -94,27 +94,28 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
 
     }
 
-    private User updateUserFields(User userFromRequestForUpdate, User userFoundedForUpdate, Map<String, Object> changedValues) {
+    private User updateUserFields(User userFromRequestForUpdate, User userFoundedForUpdate,
+                                  Map<String, Object> changedValues) {
         updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getSecretKey, userFoundedForUpdate::getSecretKey,
-                "SecretKey", userFoundedForUpdate::setSecretKey, changedValues);
+                "secretKey", userFoundedForUpdate::setSecretKey, changedValues);
 
         updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getFirstName, userFoundedForUpdate::getFirstName,
-                "First_name", userFoundedForUpdate::setFirstName, changedValues);
+                "first_name", userFoundedForUpdate::setFirstName, changedValues);
 
         updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getLastName, userFoundedForUpdate::getLastName,
-                "Last_name", userFoundedForUpdate::setLastName, changedValues);
+                "last_name", userFoundedForUpdate::setLastName, changedValues);
 
         updateEntityHelper.checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getVerifiedAt, userFoundedForUpdate::getVerifiedAt,
-                "Verified_at", userFoundedForUpdate::setVerifiedAt, changedValues);
+                "verified_at", userFoundedForUpdate::setVerifiedAt, changedValues);
 
         updateEntityHelper.checkAndUpdateLocalDateTimeFields(userFromRequestForUpdate::getArchivedAt, userFoundedForUpdate::getArchivedAt,
-                "Archived_at", userFoundedForUpdate::setArchivedAt, changedValues);
+                "archived_at", userFoundedForUpdate::setArchivedAt, changedValues);
 
         updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getStatus, userFoundedForUpdate::getStatus,
-                "Status", userFoundedForUpdate::setStatus, changedValues);
+                "status", userFoundedForUpdate::setStatus, changedValues);
 
         updateEntityHelper.checkAndUpdateFields(userFromRequestForUpdate::getFilled, userFoundedForUpdate::getFilled,
-                "Filled", userFoundedForUpdate::setFilled, changedValues);
+                "filled", userFoundedForUpdate::setFilled, changedValues);
 
         return userFoundedForUpdate;
     }

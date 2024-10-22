@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 
 @Service
 public class UpdateEntityHelper {
-    public  <T> void checkAndUpdateFields(Supplier<T> fieldGetterFromEntityFromRequest, Supplier<T> fieldGetterFromEntityFoundedForUpdate,
-                                          String fieldName, Consumer<T> fieldSetterFromEntityFoundedForUpdate, Map<String, Object> changedValues) {
+    public <T> void checkAndUpdateFields(Supplier<T> fieldGetterFromEntityFromRequest, Supplier<T> fieldGetterFromEntityFoundedForUpdate,
+                                         String fieldName, Consumer<T> fieldSetterFromEntityFoundedForUpdate, Map<String, Object> changedValues) {
         if ((fieldGetterFromEntityFromRequest.get() != null)
                 && !fieldGetterFromEntityFromRequest.get().equals(fieldGetterFromEntityFoundedForUpdate.get())) {
             fieldSetterFromEntityFoundedForUpdate.accept(fieldGetterFromEntityFromRequest.get());
@@ -22,7 +22,7 @@ public class UpdateEntityHelper {
     }
 
     public void checkAndUpdateLocalDateTimeFields(Supplier<LocalDateTime> fieldGetterFromEntityFromRequest, Supplier<LocalDateTime> fieldGetterFromEntityFoundedForUpdate,
-                                                   String fieldName, Consumer<LocalDateTime> fieldSetterFromEntityFoundedForUpdate, Map<String, Object> changedValues) {
+                                                  String fieldName, Consumer<LocalDateTime> fieldSetterFromEntityFoundedForUpdate, Map<String, Object> changedValues) {
         if ((fieldGetterFromEntityFromRequest.get() != null)
                 && !fieldGetterFromEntityFromRequest.get().withNano(0).equals(fieldGetterFromEntityFoundedForUpdate.get().withNano(0))) {
             fieldSetterFromEntityFoundedForUpdate.accept(fieldGetterFromEntityFromRequest.get());

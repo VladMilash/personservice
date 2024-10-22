@@ -11,5 +11,5 @@ public interface AddressService {
 
     Mono<Address> getById(UUID id);
 
-    Mono<UserHistory> updateAddress(UUID userId);
+    Mono<UserHistory> updateAddress(UUID userId, Address entity);
 }
