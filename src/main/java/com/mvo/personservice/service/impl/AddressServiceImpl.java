@@ -7,7 +7,6 @@ import com.mvo.personservice.repository.AddressRepository;
 import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.UserService;
 import com.mvo.personservice.service.impl.util.UpdateEntityHelper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
