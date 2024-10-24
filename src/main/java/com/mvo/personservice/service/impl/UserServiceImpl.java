@@ -79,6 +79,13 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     }
 
     @Override
+    public Mono<Void> deleteById(UUID id) {
+        return userRepository.deleteById(id)
+                .doOnSuccess(user -> log.info("Operation for user delete has finished successfully"))
+                .doOnError(error -> log.error("Failed to delete user", error));
+    }
+
+    @Override
     public Mono<UserHistory> updateUser(User entity) {
         return userRepository.findById(entity.getId())
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("User not found", "USER_NOT_FOUND")))

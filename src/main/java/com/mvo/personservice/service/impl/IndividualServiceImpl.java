@@ -43,15 +43,29 @@ public class IndividualServiceImpl implements IndividualService {
     @Override
     public Mono<Individual> findByEmail(String email) {
         return individualRepository.findByEmail(email)
-                .doOnSuccess(individual -> log.info("Operation for founding has finished successfully"))
+                .doOnSuccess(individual -> log.info("Operation for founding individual has finished successfully"))
                 .doOnError(error -> log.error("Failed to founding individual", error));
     }
 
     @Override
     public Flux<Individual> findByUserId(UUID id) {
         return individualRepository.findByUserId(id)
-                .doOnComplete(() -> log.info("Operation for finding individuals by userId {} has finished successfully", id))
+                .doOnComplete(() -> log.info("Operation for individual finding by userId {} has finished successfully", id))
                 .doOnError(error -> log.error("Failed to founding individual", error));
+    }
+
+    @Override
+    public Mono<Individual> findByPassportNumber(String passportNumber) {
+        return individualRepository.findByPassportNumber(passportNumber)
+                .doOnSuccess(individual -> log.info("Operation for individual founding has finished successfully"))
+                .doOnError(error -> log.error("Failed to founding individual", error));
+    }
+
+    @Override
+    public Mono<Void> deleteById(UUID id) {
+        return individualRepository.deleteById(id)
+                .doOnSuccess(individual -> log.info("Operation for individual delete has finished successfully"))
+                .doOnError(error -> log.error("Failed to delete individual", error));
     }
 
     @Override

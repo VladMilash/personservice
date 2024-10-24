@@ -49,6 +49,21 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
                 );
     }
 
+    @Override
+    public Mono<Void> rollBeckRegistration(RegistrationRequestDTO request) {
+        return individualService.findByPassportNumber(request.passportNumber())
+                .flatMap(individual -> {
+                    return userService.getById(individual.getUserId())
+                            .flatMap(user -> {
+                                return addressService.deleteById(user.getAddressId())
+                                        .then(userService.deleteById(user.getId()));
+                            })
+                            .then(individualService.deleteById(individual.getId()));
+
+                })
+                .doOnError(error -> log.error("RollBeck registration failed"))
+                .doOnSuccess(aVoid -> log.info("Operation for rollBeck registration has finished successfully"));
+    }
 
     private User createUserEntity(RegistrationRequestDTO request, Address address) {
         return User.builder()

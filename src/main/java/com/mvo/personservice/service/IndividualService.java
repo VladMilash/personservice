@@ -16,4 +16,8 @@ public interface IndividualService {
 
     Mono<UserHistory> updateIndividual(Individual individual);
 
+    Mono<Individual> findByPassportNumber(String passportNumber);
+
+    Mono<Void> deleteById(UUID id);
+
 }

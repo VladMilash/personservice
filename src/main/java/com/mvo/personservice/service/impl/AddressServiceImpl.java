@@ -48,6 +48,13 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    public Mono<Void> deleteById(UUID id) {
+        return addressRepository.deleteById(id)
+                .doOnSuccess(address -> log.info("Operation for address delete has finished successfully"))
+                .doOnError(error -> log.error("Failed to delete address", error));
+    }
+
+    @Override
     public Mono<UserHistory> updateAddress(UUID userId, Address entity) {
         return userService.getById(userId)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))

@@ -13,4 +13,7 @@ public interface IndividualRepository extends R2dbcRepository<Individual, UUID> 
     Mono<Individual> findByEmail(String email);
 
     Flux<Individual> findByUserId(UUID id);
+
+    Mono<Individual> findByPassportNumber(String passportNumber);
+
 }
