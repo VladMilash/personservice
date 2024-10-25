@@ -55,10 +55,10 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
                 .flatMap(individual -> {
                     return userService.getById(individual.getUserId())
                             .flatMap(user -> {
-                                return addressService.deleteById(user.getAddressId())
-                                        .then(userService.deleteById(user.getId()));
-                            })
-                            .then(individualService.deleteById(individual.getId()));
+                                return individualService.deleteById(individual.getId())
+                                        .then(userService.deleteById(user.getId()))
+                                        .then(addressService.deleteById(user.getAddressId()));
+                            });
 
                 })
                 .doOnError(error -> log.error("RollBeck registration failed"))

@@ -5,10 +5,7 @@ import com.mvo.personservice.service.RegistrationUsersService;
 import dto.RegistrationRequestDTO;
 import dto.UserDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -23,5 +20,11 @@ public class RegistrationRestControllerV1 {
             (@RequestBody RegistrationRequestDTO request) {
         return registrationUsersService.registrationUser(request)
                 .map(userMapper::map);
+    }
+
+    @PostMapping("rollback")
+    public Mono<Void> doRollBeckRegistration
+            (@RequestBody RegistrationRequestDTO request) {
+        return registrationUsersService.rollBeckRegistration(request);
     }
 }
