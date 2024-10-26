@@ -12,7 +12,7 @@ public interface IndividualRepository extends R2dbcRepository<Individual, UUID> 
     @Query("SELECT * FROM individuals WHERE email = :email")
     Mono<Individual> findByEmail(String email);
 
-    Flux<Individual> findByUserId(UUID id);
+   Mono<Individual> findByUserId(UUID id);
 
     Mono<Individual> findByPassportNumber(String passportNumber);
 

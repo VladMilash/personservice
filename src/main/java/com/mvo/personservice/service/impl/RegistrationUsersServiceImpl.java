@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -50,20 +51,20 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
     }
 
     @Override
-    public Mono<Void> rollBeckRegistration(RegistrationRequestDTO request) {
-        return individualService.findByPassportNumber(request.passportNumber())
-                .flatMap(individual -> {
-                    return userService.getById(individual.getUserId())
-                            .flatMap(user -> {
-                                return individualService.deleteById(individual.getId())
-                                        .then(userService.deleteById(user.getId()))
-                                        .then(addressService.deleteById(user.getAddressId()));
-                            });
-
-                })
+    public Mono<Void> rollBeckRegistration(UUID id) {
+        return userService.getById(id)
+                .flatMap(user -> addressService.getById(user.getId())
+                        .flatMap(address -> individualService.findByUserId(id)
+                                .flatMap(individual -> individualService.deleteById(individual.getId())
+                                        .then(userService.deleteById(id))
+                                        .then(addressService.deleteById(address.getId()))
+                                )
+                        )
+                )
                 .doOnError(error -> log.error("RollBeck registration failed"))
                 .doOnSuccess(aVoid -> log.info("Operation for rollBeck registration has finished successfully"));
     }
+
 
     private User createUserEntity(RegistrationRequestDTO request, Address address) {
         return User.builder()

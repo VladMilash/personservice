@@ -48,9 +48,9 @@ public class IndividualServiceImpl implements IndividualService {
     }
 
     @Override
-    public Flux<Individual> findByUserId(UUID id) {
+    public Mono<Individual> findByUserId(UUID id) {
         return individualRepository.findByUserId(id)
-                .doOnComplete(() -> log.info("Operation for individual finding by userId {} has finished successfully", id))
+                .doOnSuccess(individual -> log.info("Operation for individual finding by userId {} has finished successfully", id))
                 .doOnError(error -> log.error("Failed to founding individual", error));
     }
 

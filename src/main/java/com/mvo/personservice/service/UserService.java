@@ -19,7 +19,7 @@ public interface UserService {
 
     Mono<Country> getUserCountryByUserId(UUID id);
 
-    Flux<Individual> getIndividualsByUserId(UUID id);
+    Mono<Individual> getIndividualsByUserId(UUID id);
 
     Mono<Void> deleteById(UUID id);
 }

@@ -12,7 +12,7 @@ public interface IndividualService {
 
     Mono<Individual> findByEmail(String email);
 
-    Flux<Individual> findByUserId(UUID id);
+    Mono<Individual> findByUserId(UUID id);
 
     Mono<UserHistory> updateIndividual(Individual individual);
 

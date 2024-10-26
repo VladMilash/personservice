@@ -70,12 +70,12 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     }
 
     @Override
-    public Flux<Individual> getIndividualsByUserId(UUID id) {
+    public Mono<Individual> getIndividualsByUserId(UUID id) {
         return getById(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
-                .flatMapMany(user -> individualService.findByUserId(id))
-                .doOnComplete(() -> log.info("Operation for finding individuals by userId {} completed", id))
-                .doOnError(error -> log.error("Failed to finding individuals by userId {}", id, error));
+                .flatMap(user -> individualService.findByUserId(id)
+                .doOnSuccess(individual -> log.info("Operation for finding individuals by userId {} completed", id))
+                .doOnError(error -> log.error("Failed to finding individuals by userId {}", id, error)));
     }
 
     @Override

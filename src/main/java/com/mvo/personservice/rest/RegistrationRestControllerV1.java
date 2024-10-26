@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("v1/api/registration/")
@@ -22,9 +24,9 @@ public class RegistrationRestControllerV1 {
                 .map(userMapper::map);
     }
 
-    @PostMapping("rollback")
+    @DeleteMapping("rollback/{userId}")
     public Mono<Void> doRollBeckRegistration
-            (@RequestBody RegistrationRequestDTO request) {
-        return registrationUsersService.rollBeckRegistration(request);
+            (@PathVariable UUID userId) {
+        return registrationUsersService.rollBeckRegistration(userId);
     }
 }

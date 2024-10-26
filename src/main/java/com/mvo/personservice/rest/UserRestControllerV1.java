@@ -51,7 +51,7 @@ public class UserRestControllerV1 {
     }
 
     @GetMapping("individuals/{userId}")
-    public Flux<IndividualDTO> getIndividualsByUserId(@PathVariable("userId") UUID id) {
+    public Mono<IndividualDTO> getIndividualsByUserId(@PathVariable("userId") UUID id) {
         return userService.getIndividualsByUserId(id)
                 .map(individualMapper::map);
     }
