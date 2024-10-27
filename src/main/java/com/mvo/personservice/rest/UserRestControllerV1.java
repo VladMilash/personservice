@@ -76,4 +76,10 @@ public class UserRestControllerV1 {
         return individualService.updateIndividual(individualMapper.map(individualDTO))
                 .map(userHistoryMapper::map);
     }
+
+    @GetMapping("email/{email}")
+    public Mono<UserDTO> getUserByEmail(@PathVariable String email) {
+        return userService.getByUserEmail(email)
+                .map(userMapper::map);
+    }
 }

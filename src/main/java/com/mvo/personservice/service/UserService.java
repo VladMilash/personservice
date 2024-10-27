@@ -22,4 +22,6 @@ public interface UserService {
     Mono<Individual> getIndividualsByUserId(UUID id);
 
     Mono<Void> deleteById(UUID id);
+
+    Mono<User> getByUserEmail(String email);
 }

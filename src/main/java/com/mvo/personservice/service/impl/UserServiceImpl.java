@@ -74,8 +74,8 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
         return getById(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Not found user with this id", "NOT_FOUNDED_USER")))
                 .flatMap(user -> individualService.findByUserId(id)
-                .doOnSuccess(individual -> log.info("Operation for finding individuals by userId {} completed", id))
-                .doOnError(error -> log.error("Failed to finding individuals by userId {}", id, error)));
+                        .doOnSuccess(individual -> log.info("Operation for finding individuals by userId {} completed", id))
+                        .doOnError(error -> log.error("Failed to finding individuals by userId {}", id, error)));
     }
 
     @Override
@@ -86,6 +86,14 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
     }
 
     @Override
+    public Mono<User> getByUserEmail(String email) {
+        return individualService.findByEmail(email)
+                .flatMap(individual -> getById(individual.getUserId()))
+                .doOnSuccess(user -> log.info("User with email {} has been found", email))
+                .doOnError(error -> log.error("Failed to finding user with email {}", email, error));
+    }
+
+    @Override
     public Mono<UserHistory> updateUser(User entity) {
         return userRepository.findById(entity.getId())
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("User not found", "USER_NOT_FOUND")))
@@ -93,7 +101,8 @@ public class UserServiceImpl implements com.mvo.personservice.service.UserServic
                     Map<String, Object> changedValues = new HashMap<>();
                     User updatedUser = updateUserFields(entity, foundUser, changedValues);
                     return createUser(updatedUser)
-                            .then(Mono.just(updateEntityHelper.createUserHistoryEntity(updatedUser, updateEntityHelper.createJson(changedValues))))
+                            .then(Mono.just(updateEntityHelper.createUserHistoryEntity(updatedUser, updateEntityHelper.
+                                    createJson(changedValues))))
                             .flatMap(userHistoryService::save);
                 })
                 .doOnSuccess(userHistory -> log.info("User with id {} has been updated successfully", entity.getId()))
