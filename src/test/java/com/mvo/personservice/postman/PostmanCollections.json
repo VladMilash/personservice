@@ -1,0 +1,294 @@
+{
+  "info": {
+    "_postman_id": "a26e7ed1-1955-4aa2-bd7e-8963fcd57cb6",
+    "name": "person-service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37537713"
+  },
+  "item": [
+    {
+      "name": "Registration",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"first_name\":  \"Alan1e12\",\r\n    \"last_name\": \"Gro211e121t\",\r\n    \"country\": \"Austria\",\r\n    \"address\": \"T2est2e12\",\r\n    \"zip_code\": \"Test12e12\",\r\n    \"city\": \"city21e221\",\r\n    \"state\": \"staet222e11\",\r\n    \"passport_number\": \"121e11212232\",\r\n    \"phone_number\": \"212121e2112545\",\r\n    \"email\": \"ffx@p1121e22122p1.ru\"\r\n}\r\n    \r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/v1/api/registration/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "registration",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get all users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get user by id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/58f0dec9-bc3d-4558-8bdc-710a7fa318d9",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "58f0dec9-bc3d-4558-8bdc-710a7fa318d9"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get country by user id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/country/acbb50f2-7d85-41a4-95c1-e9c9b4680ff4",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "country",
+            "acbb50f2-7d85-41a4-95c1-e9c9b4680ff4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get adress by user id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/address/9c21a78e-7e6e-46d5-8aa4-874fc791bef6",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "address",
+            "9c21a78e-7e6e-46d5-8aa4-874fc791bef6"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get individuals by user id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/individuals/58f0dec9-bc3d-4558-8bdc-710a7fa318d9",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "individuals",
+            "58f0dec9-bc3d-4558-8bdc-710a7fa318d9"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update user",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id\": \"9c21a78e-7e6e-46d5-8aa4-874fc791bef6\",\n    \"created\": \"2024-10-21T12:20:51.060632029\",\n    \"updated\": \"2024-10-21T12:20:51.060644168\",\n    \"first_name\": \"TTT\",\n    \"last_name\": \"GGG\",\n    \"verified_at\": \"2024-10-21T12:20:51.060661183\",\n    \"archived_at\": \"2024-10-21T12:20:51.060669346\",\n    \"status\": \"IN_PROGRESS\",\n    \"filled\": true,\n    \"address_id\": \"3d793180-d201-406f-8327-ef755c76afe4\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update address",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id\": \"3d793180-d201-406f-8327-ef755c76afe4\",\n    \"created\": \"2024-10-21T12:20:50.989249\",\n    \"updated\": \"2024-10-21T12:20:50.989266\",\n    \"country_id\": 9,\n    \"address\": \"11111\",\n    \"zip_code\": \"11111\",\n    \"archived\": \"2024-10-21T12:20:50.989273\",\n    \"city\": \"city1\",\n    \"state\": \"state1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/address/9c21a78e-7e6e-46d5-8aa4-874fc791bef6",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "address",
+            "9c21a78e-7e6e-46d5-8aa4-874fc791bef6"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update individual for user",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n        \"id\": \"7309c502-0dcd-4f49-a8fb-053cd7ad4b01\",\n        \"user_id\": \"58f0dec9-bc3d-4558-8bdc-710a7fa318d9\",\n        \"created\": \"2024-10-23T15:12:37.522988\",\n        \"updated\": \"2024-10-23T15:12:37.523012\",\n        \"passport_number\": \"12122222232\",\n        \"phone_number\": \"2121221545\",\n        \"email\": \"ffx@p11222p.ru\",\n        \"verified_at\": \"2024-10-23T15:12:37.52304\",\n        \"archived_at\": \"2024-10-23T15:12:37.523056\",\n        \"status\": \"ACTIVE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/individuals",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "individuals"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "rollbeck for registration",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/registration/rollback/776d9d76-9875-46d6-b2a8-c041f3be991d",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "registration",
+            "rollback",
+            "776d9d76-9875-46d6-b2a8-c041f3be991d"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get user by id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/v1/api/users/email/sffx@p1121e2422122p1.ru",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "v1",
+            "api",
+            "users",
+            "email",
+            "sffx@p1121e2422122p1.ru"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
