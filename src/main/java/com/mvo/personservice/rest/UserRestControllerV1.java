@@ -68,7 +68,6 @@ public class UserRestControllerV1 {
             (@PathVariable("userId") UUID userId, @RequestBody AddressDTO addressDTO) {
         return addressService.updateAddress(userId, addressMapper.map(addressDTO))
                 .map(userHistoryMapper::map);
-
     }
 
     @PutMapping("individuals")
