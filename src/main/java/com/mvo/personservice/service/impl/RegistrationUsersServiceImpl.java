@@ -50,6 +50,7 @@ public class RegistrationUsersServiceImpl implements RegistrationUsersService {
                 );
     }
 
+    @Transactional
     @Override
     public Mono<Void> rollBeckRegistration(UUID id) {
         return userService.getById(id)
