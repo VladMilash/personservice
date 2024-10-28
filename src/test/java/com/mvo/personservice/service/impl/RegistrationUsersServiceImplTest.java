@@ -4,9 +4,8 @@ import com.mvo.personservice.entity.Address;
 import com.mvo.personservice.entity.Country;
 import com.mvo.personservice.entity.Individual;
 import com.mvo.personservice.entity.User;
+import com.mvo.personservice.util.TestDataFactory;
 import dto.RegistrationRequestDTO;
-import dto.status.Status;
-import dto.status.UserStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,65 +59,23 @@ class RegistrationUsersServiceImplTest {
     }
 
     private void setUpTestData() {
-        requestDTO = new RegistrationRequestDTO(
-                "firstName",
-                "lastName",
-                "country",
-                "address",
-                "zipCode",
-                "city",
-                "state",
-                "phoneNumber",
-                "email",
-                "password",
-                "confirmPassword",
-                "confirmPassword"
-        );
+        requestDTO = TestDataFactory.newRegistrationRequestDTO();
 
-        user = User.builder()
-                .id(UUID.randomUUID())
-                .secretKey("test-secret-key")
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .firstName("TestFirstName")
-                .lastName("TestLastName")
-                .verifiedAt(null)
-                .archivedAt(null)
-                .filled(true)
-                .status(UserStatus.IN_PROGRESS)
-                .addressId(UUID.randomUUID())
-                .build();
+        user = TestDataFactory.newUser();
 
-        country = Country.builder()
-                .id(1)
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .name("TestCountryName")
-                .alpha2("TC")
-                .status(Status.ACTIVE)
-                .build();
+        country = TestDataFactory.newCountry();
 
-        address = Address.builder()
-                .id(UUID.randomUUID())
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
+        address = TestDataFactory.newAddressWithoutCountryId()
+                .toBuilder()
                 .countryId(country.getId())
-                .address(requestDTO.address())
-                .state(requestDTO.state())
-                .city(requestDTO.city())
-                .zipCode(requestDTO.zipCode())
                 .build();
 
-        individual = Individual.builder()
-                .id(UUID.randomUUID())
+        individual = TestDataFactory.newIndividualWithoutUserId()
+                .toBuilder()
                 .userId(user.getId())
                 .email(requestDTO.email())
                 .passportNumber(requestDTO.passportNumber())
-                .phoneNumber(requestDTO.phoneNumber())
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .status(Status.ACTIVE)
-                .build();
+                .phoneNumber(requestDTO.phoneNumber()).build();
 
     }
 
@@ -135,7 +91,7 @@ class RegistrationUsersServiceImplTest {
         StepVerifier.create(registrationUsersService.registrationUser(requestDTO))
                 .expectNextMatches(result -> {
                     assertNotNull(result);
-                    assertEquals("TestFirstName", result.getFirstName());
+                    assertEquals("Test", result.getFirstName());
                     return true;
                 })
                 .verifyComplete();

@@ -1,6 +1,7 @@
 package com.mvo.personservice.it;
 
 import com.mvo.personservice.config.PostgreTestcontainerConfig;
+import com.mvo.personservice.util.TestDataFactory;
 import dto.*;
 import dto.status.Status;
 import dto.status.UserStatus;
@@ -37,20 +38,7 @@ public class ItRegistrationRestControllerV1AndUserRestControllerV1Test {
 
     @BeforeEach
     void setup() {
-        registrationRequestDTO = new RegistrationRequestDTO(
-                "John",
-                "Doe",
-                "Andorra",
-                "123 Test St",
-                "12345",
-                "Test City",
-                "Test State",
-                "AB123456",
-                "+1234567890",
-                "test" + System.currentTimeMillis() + "@example.com",
-                "Password123!",
-                "Password123!"
-        );
+        registrationRequestDTO = TestDataFactory.newRegistrationRequestDTO();
 
     }
 

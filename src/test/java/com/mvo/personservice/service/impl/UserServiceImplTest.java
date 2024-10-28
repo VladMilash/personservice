@@ -8,8 +8,7 @@ import com.mvo.personservice.repository.UserRepository;
 import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.CountryService;
 import com.mvo.personservice.service.IndividualService;
-import com.mvo.personservice.service.UserHistoryService;
-import com.mvo.personservice.service.impl.util.UpdateEntityHelper;
+import com.mvo.personservice.util.TestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -50,32 +47,18 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        UUID userId = UUID.randomUUID();
-        testUser = User.builder()
-                .id(userId)
-                .firstName("Test")
-                .lastName("User")
-                .addressId(UUID.randomUUID())
-                .created(LocalDateTime.now())
-                .status(dto.status.UserStatus.IN_PROGRESS)
-                .build();
+        testUser = TestDataFactory.newUser();
 
-        testAddress = Address.builder()
+        testAddress = TestDataFactory.newAddressWithoutCountryId()
+                .toBuilder()
                 .id(testUser.getAddressId())
-                .city("TestCity")
-                .state("TestState")
-                .zipCode("12345")
                 .build();
 
-        testCountry = Country.builder()
-                .id(1)
-                .name("TestCountry")
-                .build();
+        testCountry = TestDataFactory.newCountry();
 
-        testIndividual = Individual.builder()
-                .userId(userId)
-                .phoneNumber("123456789")
-                .email("test@example.com")
+        testIndividual = TestDataFactory.newIndividualWithoutUserId()
+                .toBuilder()
+                .userId(testUser.getId())
                 .build();
     }
 
