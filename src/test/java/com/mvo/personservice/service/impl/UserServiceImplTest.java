@@ -8,7 +8,7 @@ import com.mvo.personservice.repository.UserRepository;
 import com.mvo.personservice.service.AddressService;
 import com.mvo.personservice.service.CountryService;
 import com.mvo.personservice.service.IndividualService;
-import com.mvo.personservice.util.TestDataFactory;
+import com.mvo.personservice.util.DataUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,16 +47,16 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        testUser = TestDataFactory.newUser();
+        testUser = DataUtils.newUser();
 
-        testAddress = TestDataFactory.newAddressWithoutCountryId()
+        testAddress = DataUtils.newAddressWithoutCountryId()
                 .toBuilder()
                 .id(testUser.getAddressId())
                 .build();
 
-        testCountry = TestDataFactory.newCountry();
+        testCountry = DataUtils.newCountry();
 
-        testIndividual = TestDataFactory.newIndividualWithoutUserId()
+        testIndividual = DataUtils.newIndividualWithoutUserId()
                 .toBuilder()
                 .userId(testUser.getId())
                 .build();

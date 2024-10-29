@@ -9,7 +9,7 @@ import dto.RegistrationRequestDTO;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class TestDataFactory {
+public class DataUtils {
 
     public static RegistrationRequestDTO newRegistrationRequestDTO() {
         return new RegistrationRequestDTO(

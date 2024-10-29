@@ -4,7 +4,7 @@ import com.mvo.personservice.entity.Address;
 import com.mvo.personservice.entity.Country;
 import com.mvo.personservice.entity.Individual;
 import com.mvo.personservice.entity.User;
-import com.mvo.personservice.util.TestDataFactory;
+import com.mvo.personservice.util.DataUtils;
 import dto.RegistrationRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,18 +59,18 @@ class RegistrationUsersServiceImplTest {
     }
 
     private void setUpTestData() {
-        requestDTO = TestDataFactory.newRegistrationRequestDTO();
+        requestDTO = DataUtils.newRegistrationRequestDTO();
 
-        user = TestDataFactory.newUser();
+        user = DataUtils.newUser();
 
-        country = TestDataFactory.newCountry();
+        country = DataUtils.newCountry();
 
-        address = TestDataFactory.newAddressWithoutCountryId()
+        address = DataUtils.newAddressWithoutCountryId()
                 .toBuilder()
                 .countryId(country.getId())
                 .build();
 
-        individual = TestDataFactory.newIndividualWithoutUserId()
+        individual = DataUtils.newIndividualWithoutUserId()
                 .toBuilder()
                 .userId(user.getId())
                 .email(requestDTO.email())
