@@ -20,6 +20,14 @@ configurations {
 }
 
 repositories {
+	maven {
+		url "http://94.198.218.71:8081/repository/common/"
+		credentials {
+			username = System.getenv("NEXUS_USERNAME")
+			password = System.getenv("NEXUS_PASSWORD")
+		}
+		allowInsecureProtocol = true
+	}
 	mavenLocal()
 	mavenCentral()
 }
