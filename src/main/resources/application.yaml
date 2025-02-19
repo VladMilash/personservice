@@ -1,12 +1,12 @@
 server:
-  port: 8084
+  port: 8090
 spring:
   r2dbc:
-    url: r2dbc:postgresql:/94.198.218.71:5434/personeservice
+    url: r2dbc:postgresql://postgres:5432/personeservice
     username: postgres
     password: postgres
   flyway:
-    url: jdbc:postgresql://94.198.218.71:5434/personeservice
+    url: jdbc:postgresql://postgres:5432/personeservice
     locations: classpath:db/migration
     user: postgres
     password: postgres
